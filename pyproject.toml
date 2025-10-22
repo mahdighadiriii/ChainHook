@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "chainhook"
+version = "0.1.0"
+description = ""
+authors = ["Mahdi <mahdighadiriafzal@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["standard"], version = "^0.119.1"}
+django = "5.2"
+djangorestframework = "^3.16.1"
+sqlalchemy = "^2.0.44"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
