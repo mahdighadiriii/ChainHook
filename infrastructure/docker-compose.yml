@@ -14,13 +14,18 @@ services:
     ports:
       - "6379:6379"
   rabbitmq:
-    image: rabbitmq:3-management
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+      image: rabbitmq:3-management
+      environment:
+        RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      ports:
+        - "5672:5672"
+        - "15672:15672"
+      healthcheck:
+        test: ["CMD", "rabbitmqctl", "status"]
+        interval: 5s
+        timeout: 5s
+        retries: 10
   event-listener:
     build:
       context: ..
@@ -37,5 +42,21 @@ services:
       - redis
       - rabbitmq
     restart: unless-stopped
+  event-consumer:
+      build:
+        context: ..
+        dockerfile: event-listener/Dockerfile
+      working_dir: /app/event-listener
+      entrypoint: /app/event-listener/entrypoint.sh
+      depends_on:
+        rabbitmq:
+          condition: service_healthy
+        postgres:
+          condition: service_started
+      environment:
+        POSTGRES_URL: ${POSTGRES_URL}
+        RABBITMQ_URL: ${RABBITMQ_URL}
+        REDIS_URL: ${REDIS_URL}
+      restart: unless-stopped
 volumes:
   postgres_data:
