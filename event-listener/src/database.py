@@ -1,7 +1,10 @@
+import time
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, Column, DateTime, String, create_engine
+import psycopg2
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from sqlalchemy import JSON, Column, DateTime, String, create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -27,9 +30,71 @@ class Event(Base):
     timestamp = Column(DateTime)
 
 
-engine = create_engine(settings.postgres_url)
+def parse_postgres_url(url):
+    from urllib.parse import urlparse
+
+    parsed = urlparse(url)
+    return {
+        "host": parsed.hostname,
+        "port": parsed.port or 5432,
+        "user": parsed.username,
+        "password": parsed.password,
+        "database": parsed.path.lstrip("/"),
+    }
+
+
+def connect_with_retry(db_config, retries=5, delay=2):
+    for attempt in range(retries):
+        try:
+            conn = psycopg2.connect(
+                dbname="postgres",
+                user=db_config["user"],
+                password=db_config["password"],
+                host=db_config["host"],
+                port=db_config["port"],
+            )
+            conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+            return conn
+        except psycopg2.OperationalError as e:
+            if attempt < retries - 1:
+                print(f"Connection failed: {e}. Retrying in {delay}s...")
+                time.sleep(delay)
+            else:
+                raise
+
+
+def create_database_if_not_exists(db_config):
+    """Create database if it doesn't exist (PostgreSQL compatible)"""
+    conn = connect_with_retry(db_config)
+    cursor = conn.cursor()
+
+    # Check if database exists
+    cursor.execute(
+        "SELECT 1 FROM pg_database WHERE datname = %s", (db_config["database"],)
+    )
+    exists = cursor.fetchone()
+
+    if not exists:
+        # Create database
+        cursor.execute(f"CREATE DATABASE {db_config['database']}")
+        print(f"Database {db_config['database']} created successfully")
+    else:
+        print(f"Database {db_config['database']} already exists")
+
+    cursor.close()
+    conn.close()
+
+
+# Create database if it doesn't exist
+db_config = parse_postgres_url(settings.postgres_url)
+create_database_if_not_exists(db_config)
+
+# Create engine and tables
+engine = create_engine(settings.postgres_url, echo=True)
+with engine.begin() as conn:
+    conn.execute(text("CREATE SCHEMA IF NOT EXISTS event_listener"))
 Base.metadata.create_all(engine)
-SessionLocal = sessionmaker(bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def get_db_session():
