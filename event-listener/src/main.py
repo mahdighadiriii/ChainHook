@@ -1,15 +1,12 @@
 import asyncio
 from typing import List
 
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI
 
 from .blockchain import EventListener
 from .cache import cache_events, get_cached_events
-from .config import settings
-from .database import get_db_session, get_events, save_contract, save_event
+from .database import get_db_session, get_events, save_contract
 from .models import ContractCreate, EventResponse
-from .queue import publish_event
 
 app = FastAPI(title="ChainHook Event Listener")
 
@@ -24,7 +21,6 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
     await app.state.listener.stop()
-    # Wait for listener task to finish
     if hasattr(app.state, "listener_task"):
         app.state.listener_task.cancel()
         try:
