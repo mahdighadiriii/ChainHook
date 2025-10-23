@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 
 from fastapi import FastAPI, HTTPException
@@ -16,12 +17,20 @@ app = FastAPI(title="ChainHook Event Listener")
 @app.on_event("startup")
 async def startup():
     app.state.listener = EventListener()
-    await app.state.listener.start()
+    # Run listener in background task instead of blocking
+    app.state.listener_task = asyncio.create_task(app.state.listener.start())
 
 
 @app.on_event("shutdown")
 async def shutdown():
     await app.state.listener.stop()
+    # Wait for listener task to finish
+    if hasattr(app.state, "listener_task"):
+        app.state.listener_task.cancel()
+        try:
+            await app.state.listener_task
+        except asyncio.CancelledError:
+            pass
 
 
 @app.post("/contracts/register", response_model=ContractCreate)
