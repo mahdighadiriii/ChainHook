@@ -1,10 +1,13 @@
 import asyncio
+import logging
 
 from web3 import Web3
 from web3.providers.websocket import WebsocketProvider
 
 from .config import settings
 from .queue import publish_event
+
+logger = logging.getLogger(__name__)
 
 
 class EventListener:
@@ -28,10 +31,14 @@ class EventListener:
     async def start(self):
         if not self.w3.is_connected():
             raise Exception("Failed to connect to Web3 provider")
+
         self.running = True
+        logger.info("Starting blockchain event listener")
+
         try:
             contract = self.w3.eth.contract(address=self.contract_address, abi=self.abi)
             event_filter = contract.events.Transfer.create_filter(fromBlock="latest")
+
             while self.running:
                 try:
                     for event in event_filter.get_new_entries():
@@ -46,15 +53,24 @@ class EventListener:
                                 "transactionHash": event["transactionHash"].hex(),
                             },
                         }
+
+                        # Publish to RabbitMQ
                         await publish_event(event_data)
+                        logger.info(
+                            f"Event published: {event['transactionHash'].hex()}"
+                        )
+
                     await asyncio.sleep(2)
+
                 except Exception as e:
-                    print(f"Error in event polling: {e}")
+                    logger.error(f"Error in event polling: {e}")
                     await asyncio.sleep(5)
+
         except Exception as e:
-            print(f"Error in listener setup: {e}")
+            logger.error(f"Error in listener setup: {e}")
             self.running = False
             raise
 
     async def stop(self):
         self.running = False
+        logger.info("Stopping blockchain event listener")
