@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    web3_provider_url: str
+    web3_provider_url: str | None = None
     postgres_url: str
     redis_url: str
     rabbitmq_url: str
