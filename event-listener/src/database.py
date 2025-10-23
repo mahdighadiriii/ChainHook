@@ -68,14 +68,12 @@ def create_database_if_not_exists(db_config):
     conn = connect_with_retry(db_config)
     cursor = conn.cursor()
 
-    # Check if database exists
     cursor.execute(
         "SELECT 1 FROM pg_database WHERE datname = %s", (db_config["database"],)
     )
     exists = cursor.fetchone()
 
     if not exists:
-        # Create database
         cursor.execute(f"CREATE DATABASE {db_config['database']}")
         print(f"Database {db_config['database']} created successfully")
     else:
@@ -85,11 +83,9 @@ def create_database_if_not_exists(db_config):
     conn.close()
 
 
-# Create database if it doesn't exist
 db_config = parse_postgres_url(settings.postgres_url)
 create_database_if_not_exists(db_config)
 
-# Create engine and tables
 engine = create_engine(settings.postgres_url, echo=True)
 with engine.begin() as conn:
     conn.execute(text("CREATE SCHEMA IF NOT EXISTS event_listener"))
