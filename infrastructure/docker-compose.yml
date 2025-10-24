@@ -23,6 +23,29 @@ services:
     networks:
       - default
 
+  webhook-orchestrator:
+    build:
+      context: ..
+      dockerfile: webhook-orchestrator/Dockerfile
+    entrypoint: /app/entrypoint.sh
+    environment:
+      POSTGRES_URL: ${POSTGRES_URL}
+      REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      WEBHOOK_SECRET_KEY: ${WEBHOOK_SECRET_KEY:-your-secret-key-change-in-production}
+    ports:
+      - "8002:8002"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - default
+
   rabbitmq:
     image: rabbitmq:3-management
     environment:
