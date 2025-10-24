@@ -24,5 +24,5 @@ COPY webhook-orchestrator/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 COPY . /app
-
-CMD ["uvicorn", "webhook-orchestrator.src.main:app", "--host", "0.0.0.0", "--port", "8002"]
+ENV PYTHONPATH=/app/webhook-orchestrator
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8002"]
