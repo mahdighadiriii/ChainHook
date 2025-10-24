@@ -8,7 +8,7 @@ from .blockchain import EventListener
 from .cache import cache_events, get_cached_events
 from .database import get_db_session, get_events, save_contract
 from .models import ContractCreate, EventResponse
-from .queue import get_publisher
+from .rabbitmq_client import get_publisher
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
