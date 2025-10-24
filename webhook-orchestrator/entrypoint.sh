@@ -22,4 +22,4 @@ echo "🎯 Setting up RabbitMQ..."
 python webhook-orchestrator/setup_rabbitmq.py
 
 echo "🚀 Starting Webhook Orchestrator service..."
-exec "$@"
+exec uvicorn src.main:app --host 0.0.0.0 --port 8002
