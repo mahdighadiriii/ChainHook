@@ -42,6 +42,7 @@ async def setup_rabbitmq():
                     arguments={
                         "x-dead-letter-exchange": "events.dlx",
                         "x-dead-letter-routing-key": "events.failed",
+                        "x-message-ttl": 300000,
                     },
                 )
                 await channel.declare_queue("events.dlq", durable=True)
