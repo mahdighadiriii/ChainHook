@@ -17,6 +17,7 @@ pydantic-settings = "^2.11.0"
 psycopg2-binary = "^2.9.11"
 web3 = "6.0.0"
 setuptools = "^80.9.0"
+aio-pika = "9.4.3"
 
 
 [build-system]
