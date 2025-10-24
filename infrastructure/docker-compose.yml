@@ -4,6 +4,8 @@ services:
       context: ..
       dockerfile: event-listener/Dockerfile
     entrypoint: /app/entrypoint_listener.sh
+    ports:
+      - "8001:8001"
     environment:
       WEB3_PROVIDER_URL: ${WEB3_PROVIDER_URL}
       POSTGRES_URL: ${POSTGRES_URL}
