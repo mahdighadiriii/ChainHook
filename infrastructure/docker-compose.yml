@@ -1,62 +1,83 @@
 services:
-  postgres:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-  redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
-  rabbitmq:
-      image: rabbitmq:3-management
-      environment:
-        RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-      ports:
-        - "5672:5672"
-        - "15672:15672"
-      healthcheck:
-        test: ["CMD", "rabbitmqctl", "status"]
-        interval: 5s
-        timeout: 5s
-        retries: 10
   event-listener:
     build:
       context: ..
       dockerfile: event-listener/Dockerfile
-    ports:
-      - "8001:8001"
+    entrypoint: /app/entrypoint_listener.sh
     environment:
       WEB3_PROVIDER_URL: ${WEB3_PROVIDER_URL}
       POSTGRES_URL: ${POSTGRES_URL}
       REDIS_URL: ${REDIS_URL}
       RABBITMQ_URL: ${RABBITMQ_URL}
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
     restart: unless-stopped
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - default
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
+    networks:
+      - default
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    networks:
+      - default
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    networks:
+      - default
+
   event-consumer:
-      build:
-        context: ..
-        dockerfile: event-listener/Dockerfile
-      working_dir: /app/event-listener
-      entrypoint: /app/event-listener/entrypoint.sh
-      depends_on:
-        rabbitmq:
-          condition: service_healthy
-        postgres:
-          condition: service_started
-      environment:
-        POSTGRES_URL: ${POSTGRES_URL}
-        RABBITMQ_URL: ${RABBITMQ_URL}
-        REDIS_URL: ${REDIS_URL}
-      restart: unless-stopped
-volumes:
-  postgres_data:
+    build:
+      context: ..
+      dockerfile: event-listener/Dockerfile
+    entrypoint: /app/entrypoint.sh
+    environment:
+      POSTGRES_URL: ${POSTGRES_URL}
+      REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - default
+
+networks:
+  default:
+    name: infrastructure_default
