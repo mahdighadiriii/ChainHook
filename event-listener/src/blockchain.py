@@ -5,7 +5,7 @@ from web3 import Web3
 from web3.providers.websocket import WebsocketProvider
 
 from .config import settings
-from .queue import publish_event
+from .rabbitmq_client import publish_event
 
 logger = logging.getLogger(__name__)
 
