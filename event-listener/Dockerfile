@@ -32,5 +32,5 @@ RUN pip install -r ../requirements.txt
 
 COPY . /app
 
-
-CMD ["uvicorn", "event-listener.src.main:app", "--host", "0.0.0.0", "--port", "8001"]
+ENV PYTHONPATH=/app/event-listener
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8001"]
