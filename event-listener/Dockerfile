@@ -24,8 +24,9 @@ WORKDIR /app
 COPY requirements.txt ../
 RUN pip install --upgrade pip
 
+COPY event-listener/entrypoint_listener.sh /app/entrypoint_listener.sh
 COPY event-listener/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/entrypoint_listener.sh /app/entrypoint.sh
 
 RUN pip install -r ../requirements.txt
 
