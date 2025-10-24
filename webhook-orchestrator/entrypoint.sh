@@ -19,7 +19,7 @@ echo "⏳ Waiting for RabbitMQ..."
 sleep 10
 
 echo "🎯 Setting up RabbitMQ..."
-python -m webhook_orchestrator.setup_rabbitmq
+python webhook-orchestrator/setup_rabbitmq.py
 
 echo "🚀 Starting Webhook Orchestrator service..."
 exec "$@"
