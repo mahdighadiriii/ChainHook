@@ -84,7 +84,13 @@ class WebhookConsumer:
                         await channel.set_qos(prefetch_count=1)
 
                         queue = await channel.declare_queue(
-                            "events.detected", durable=True
+                            "events.detected",
+                            durable=True,
+                            arguments={
+                                "x-message-ttl": 300000,
+                                "x-dead-letter-exchange": "events.dlx",
+                                "x-dead-letter-routing-key": "events.failed",
+                            }
                         )
 
                         logger.info("✅ Webhook consumer ready. Waiting for events...")
