@@ -1,3 +1,5 @@
+import os
+
 from pydantic_settings import BaseSettings
 
 
@@ -10,9 +12,10 @@ class Settings(BaseSettings):
     solana_ws_url: str | None = None
 
     class Config:
-        env_file = "event-listener/.env"
+        env_file = os.path.join(os.path.dirname(__file__), "..", ".env")
         env_file_encoding = "utf-8"
         case_sensitive = False
+        extra = "allow"
 
 
 settings = Settings()
