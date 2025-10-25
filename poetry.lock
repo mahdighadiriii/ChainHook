@@ -620,6 +620,34 @@ files = [
 ]
 
 [[package]]
+name = "construct"
+version = "2.10.68"
+description = "A powerful declarative symmetric parser/builder for binary data"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "construct-2.10.68.tar.gz", hash = "sha256:7b2a3fd8e5f597a5aa1d614c3bd516fa065db01704c72a1efaaeec6ef23d8b45"},
+]
+
+[package.extras]
+extras = ["arrow", "cloudpickle", "enum34", "lz4", "numpy", "ruamel.yaml"]
+
+[[package]]
+name = "construct-typing"
+version = "0.6.2"
+description = "Extension for the python package 'construct' that adds typing features"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "construct-typing-0.6.2.tar.gz", hash = "sha256:948e998cfc003681dc34f2d071c3a688cf35b805cbe107febbc488ef967ccba1"},
+    {file = "construct_typing-0.6.2-py3-none-any.whl", hash = "sha256:ebea6989ac622d0c4eb457092cef0c7bfbcfa110bd018670fea7064d0bc09e47"},
+]
+
+[package.dependencies]
+construct = "2.10.68"
+typing-extensions = ">=4.6.0"
+
+[[package]]
 name = "cytoolz"
 version = "1.1.0"
 description = "Cython implementation of Toolz: High performance functional utilities"
@@ -1484,6 +1512,17 @@ MarkupSafe = ">=2.0"
 
 [package.extras]
 i18n = ["Babel (>=2.7)"]
+
+[[package]]
+name = "jsonalias"
+version = "0.1.1"
+description = "A microlibrary that defines a Json type alias for Python."
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "jsonalias-0.1.1-py3-none-any.whl", hash = "sha256:a56d2888e6397812c606156504e861e8ec00e188005af149f003c787db3d3f18"},
+    {file = "jsonalias-0.1.1.tar.gz", hash = "sha256:64f04d935397d579fc94509e1fcb6212f2d081235d9d6395bd10baedf760a769"},
+]
 
 [[package]]
 name = "jsonschema"
@@ -3128,6 +3167,46 @@ files = [
 ]
 
 [[package]]
+name = "solana"
+version = "0.36.9"
+description = "Solana Python API"
+optional = false
+python-versions = "<4.0,>=3.9"
+files = [
+    {file = "solana-0.36.9-py3-none-any.whl", hash = "sha256:e05824f91f95abe5a687914976e8bc78986386156f2106108c696db998c3c542"},
+    {file = "solana-0.36.9.tar.gz", hash = "sha256:f702f6177337c67a982909ef54ef3abce5e795b8cd93edb045bedfa4d13c20c5"},
+]
+
+[package.dependencies]
+construct-typing = ">=0.6.2,<0.7.0"
+httpx = ">=0.28.0"
+solders = ">=0.23,<0.27"
+typing-extensions = ">=4.2.0"
+websockets = ">=9.0,<=15.0.1"
+
+[[package]]
+name = "solders"
+version = "0.26.0"
+description = "Python bindings for Solana Rust tools"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "solders-0.26.0-cp37-abi3-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl", hash = "sha256:9c1a0ef5daa1a05934af5fb6e7e32eab7c42cede406c80067fee006f461ffc4a"},
+    {file = "solders-0.26.0-cp37-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:1b964efbd7c0b38aef3bf4293ea5938517ae649b9a23e7cd147d889931775aab"},
+    {file = "solders-0.26.0-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:36e6a769c5298b887b7588edb171d93709a89302aef75913fe893d11c653739d"},
+    {file = "solders-0.26.0-cp37-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:b3cc55b971ec6ed1b4466fa7e7e09eee9baba492b8cd9e3204e3e1a0c5a0c4aa"},
+    {file = "solders-0.26.0-cp37-abi3-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:3e3973074c17265921c70246a17bcf80972c5b96a3e1ed7f5049101f11865092"},
+    {file = "solders-0.26.0-cp37-abi3-musllinux_1_2_i686.whl", hash = "sha256:59b52419452602f697e659199a25acacda8365971c376ef3c0687aecdd929e07"},
+    {file = "solders-0.26.0-cp37-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:5946ec3f2a340afa9ce5c2b8ab628ae1dea2ad2235551b1297cafdd7e3e5c51a"},
+    {file = "solders-0.26.0-cp37-abi3-win_amd64.whl", hash = "sha256:5466616610170aab08c627ae01724e425bcf90085bc574da682e9f3bd954900b"},
+    {file = "solders-0.26.0.tar.gz", hash = "sha256:057533892d6fa432c1ce1e2f5e3428802964666c10b57d3d1bcaab86295f046c"},
+]
+
+[package.dependencies]
+jsonalias = "0.1.1"
+typing-extensions = ">=4.2.0"
+
+[[package]]
 name = "sqlalchemy"
 version = "2.0.44"
 description = "Database Abstraction Library"
@@ -3804,4 +3883,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "c3e92800fa59c6cf3a7fd3872efbeab333bf2be5db07691cfbecdb0906d33e30"
+content-hash = "5dc66da6ba233a8ee82f18cfc7eaf2b0a668ac8d2891db1f2c68a6e7705dfb7c"
