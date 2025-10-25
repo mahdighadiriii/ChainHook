@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     postgres_url: str
     redis_url: str
     rabbitmq_url: str
+    bitcoin_api_url: str | None = None
+    solana_ws_url: str | None = None
 
     class Config:
         env_file = "event-listener/.env"
