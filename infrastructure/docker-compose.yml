@@ -25,6 +25,31 @@ services:
     networks:
       - default
 
+  bitcoin_listener:
+    build:
+      context: ..
+      dockerfile: event-listener/Dockerfile
+    command: python src/bitcoin_listener.py
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - BITCOIN_API_URL=${BITCOIN_API_URL}
+    networks:
+      - default
+  solana_listener:
+    build:
+      context: ..
+      dockerfile: event-listener/Dockerfile
+    command: python src/solana_listener.py
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - SOLANA_WS_URL=${SOLANA_WS_URL}
+    networks:
+      - default
+
   webhook-orchestrator:
     build:
       context: ..
