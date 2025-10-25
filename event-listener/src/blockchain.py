@@ -22,20 +22,28 @@ class EventListener:
     def load_contracts(self):
         with self.engine.connect() as conn:
             result = conn.execute(
-                text("SELECT address, abi FROM event_listener.contracts")
+                text(
+                    "SELECT address, abi, coin FROM event_listener.contracts WHERE coin = 'ethereum'"
+                )
             )
-            self.contracts = [
-                {
-                    "address": row[0],
-                    "contract": self.w3.eth.contract(
-                        address=Web3.to_checksum_address(row[0]), abi=json.loads(row[1])
-                    ),
-                    "contract_id": row[0].lower(),
-                }
-                for row in result
-            ]
-        if not self.contracts:
-            logger.warning("No contracts registered in the database.")
+            self.contracts = []
+            for row in result:
+                if row[2] == "ethereum":
+                    try:
+                        self.contracts.append(
+                            {
+                                "address": row[0],
+                                "contract": self.w3.eth.contract(
+                                    address=Web3.to_checksum_address(row[0]),
+                                    abi=json.loads(row[1]),
+                                ),
+                                "contract_id": row[0].lower(),
+                            }
+                        )
+                    except Exception as e:
+                        logger.error(f"Error loading contract {row[0]}: {e}")
+            if not self.contracts:
+                logger.warning("No Ethereum contracts registered in the database.")
 
     async def start(self):
         if not self.w3.is_connected():
@@ -47,12 +55,9 @@ class EventListener:
         try:
             self.load_contracts()
             if not self.contracts:
-                logger.info("No contracts to monitor. Waiting for API registration...")
-                while self.running and not self.contracts:
-                    await asyncio.sleep(10)
-                    self.load_contracts()
-                if not self.running:
-                    return
+                logger.info(
+                    "No Ethereum contracts to monitor. Skipping Ethereum listener..."
+                )
 
             for contract_info in self.contracts:
                 logger.info(f"Listening to contract at {contract_info['address']}")
