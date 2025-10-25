@@ -19,6 +19,7 @@ web3 = "6.0.0"
 setuptools = "^80.9.0"
 aio-pika = "9.4.3"
 pydantic = {extras = ["email"], version = "^2.12.3"}
+solana = "^0.36.9"
 
 
 [build-system]
