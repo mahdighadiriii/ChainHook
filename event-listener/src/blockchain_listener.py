@@ -36,7 +36,7 @@ class Web3Listener:
                     ),
                     "contract_id": f"contract-{row[0].lower()}",
                 }
-                for row in result
+                for row in result if row[2] == 'ethereum'
             ]
 
         if not self.contracts:
