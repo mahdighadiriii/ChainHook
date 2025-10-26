@@ -12,12 +12,14 @@ from .config import settings
 
 Base = declarative_base()
 
+
 class Contract(Base):
     __tablename__ = "contracts"
     __table_args__ = {"schema": "event_listener"}
     address = Column(String, primary_key=True)
     abi = Column(JSON)
     coin = Column(String)
+
 
 class Event(Base):
     __tablename__ = "events"
@@ -28,8 +30,10 @@ class Event(Base):
     data = Column(JSON)
     timestamp = Column(DateTime)
 
+
 def parse_postgres_url(url):
     from urllib.parse import urlparse
+
     parsed = urlparse(url)
     return {
         "host": parsed.hostname,
@@ -38,6 +42,7 @@ def parse_postgres_url(url):
         "password": parsed.password,
         "database": parsed.path.lstrip("/"),
     }
+
 
 def connect_with_retry(db_config, retries=5, delay=2):
     for attempt in range(retries):
@@ -58,6 +63,7 @@ def connect_with_retry(db_config, retries=5, delay=2):
             else:
                 raise
 
+
 def create_database_if_not_exists(db_config):
     """Create database if it doesn't exist (PostgreSQL compatible)"""
     conn = connect_with_retry(db_config)
@@ -74,6 +80,7 @@ def create_database_if_not_exists(db_config):
     cursor.close()
     conn.close()
 
+
 db_config = parse_postgres_url(settings.postgres_url)
 create_database_if_not_exists(db_config)
 
@@ -83,14 +90,17 @@ with engine.begin() as conn:
 Base.metadata.create_all(engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 def get_db_session():
     return SessionLocal()
+
 
 def save_contract(session, address: str, abi: dict, coin: str):
     contract = Contract(address=address, abi=abi, coin=coin)
     session.merge(contract)
     session.commit()
     return contract
+
 
 def save_event(session, contract_id: str, event_type: str, data: dict):
     event = Event(
@@ -102,6 +112,7 @@ def save_event(session, contract_id: str, event_type: str, data: dict):
     )
     session.add(event)
     session.commit()
+
 
 def get_events(session, contract_id: str):
     return session.query(Event).filter(Event.contract_id == contract_id).all()
